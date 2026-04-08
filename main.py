@@ -1,19 +1,19 @@
 import json
-"""
+
 # loads file
 def load_from_file():
     try:
         with open("password_manager.json", "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        return []
+        return {}
 
 # saves file
 def save_to_file():
     with open("password_manager.json", "w") as f:
         json.dump(password_manager, f)
 
-"""
+
 
 ##### Create
 def create():
@@ -22,6 +22,7 @@ def create():
         user = input("What is the Username or e-mail address?\n")
         password = input("Please input the password\n")
         password_manager[website_name] = (user, password)
+        save_to_file()
         
         ask = input("Would you like to add another log (press q to return to main menu)?\n")
         if ask.lower() == "q":
@@ -55,6 +56,8 @@ def update():
             new_pass = input("New Password: ")
 
             password_manager[selected_log] = (new_user,new_pass)
+            save_to_file()
+
             print("log updated successfully!")
         else:
             print("Invalid number selection.")
@@ -80,6 +83,8 @@ def delete():
             confirm = input(f"Are you sure you want to Delete {selected_log}? (Y/N)\n")
             if confirm.lower() == "y":
                 del password_manager[selected_log]
+                save_to_file()
+
                 print(f"{selected_log} has been deleted.")
             else:
                 print("Deletion cancelled.")
