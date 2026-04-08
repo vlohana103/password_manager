@@ -1,6 +1,19 @@
+import json
+"""
+# loads file
+def load_from_file():
+    try:
+        with open("password_manager.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return []
 
+# saves file
+def save_to_file():
+    with open("password_manager.json", "w") as f:
+        json.dump(password_manager, f)
 
-
+"""
 
 ##### Create
 def create():
@@ -10,48 +23,70 @@ def create():
         password = input("Please input the password\n")
         password_manager[website_name] = (user, password)
         
-        ask = input("Would you like to add another log(press q to return to main menu)?\n")
+        ask = input("Would you like to add another log (press q to return to main menu)?\n")
         if ask.lower() == "q":
-            print("Thanks for using the Password Manager!")
+            print("Main Menu")
             break
 
 ##### Read
 def read():
+    i = 1
     for website_name, (user, password) in password_manager.items():
-        print(f"Password Manager Log: {website_name} -> {user}, {password}")
+        print(f"{i}. Password Manager Log: {website_name} -> {user}, {password}")
+        i += 1
     
 
-##### Update
+##### Update 
 def update():
-    print(password_manager)
-    update_item = input("Which log would you like to update?\n")
-    for website_name, (user, password) in password_manager.items():
-        confirm = input(f"Are you sure you want to Update {update_item}? (Y/N)\n")
-        if confirm.lower() == "n":
-            print(f"{update_item} has not been updated")
-            break
-        elif confirm.lower() == "y":
-            print(f"Updating {update_item}.")
-            password_manager.update(update_item)
-            break
-        else:
-            print("Invalid Option.")        
+    logs = list(password_manager.keys())
+    if not logs:
+        print("No log available to update.")
+        return
 
-##### Delete
-def delete():
-    print(password_manager)
-    remove_item = input("Which log would you like to remove?\n")
-    for website_name, (user, password) in password_manager.items():
-        confirm = input(f"Are you sure you want to Delete {remove_item}? (Y/N)\n")
-        if confirm.lower() == "n":
-            print(f"{remove_item} has not been deleted")
-            break
-        elif confirm.lower() == "y":
-            print(f"Deleting {remove_item}.")
-            del password_manager[remove_item]
-            break
+    read()
+
+    try:
+        choice = int(input("Enter the number of the log you would like to update\n"))
+        if 1 <= choice <= len(logs):
+            selected_log = logs[choice - 1]
+
+            print(f"updating log for: {selected_log}")
+            new_user = input("New Username/Email: ")
+            new_pass = input("New Password: ")
+
+            password_manager[selected_log] = (new_user,new_pass)
+            print("log updated successfully!")
         else:
-            print("Invalid Option.")
+            print("Invalid number selection.")
+    except ValueError:
+        print("Please enter a valid number, not text.")
+    
+
+##### Delete 
+def delete():
+    logs = list(password_manager.keys())
+    if not logs:
+        print("No logs to delete")
+        return
+    
+    read()
+
+    try:
+        choice = int(input("Which number log would you like to remove?\n"))
+
+        if 1 <= choice <= len(logs):
+            selected_log = logs[choice - 1]
+            
+            confirm = input(f"Are you sure you want to Delete {selected_log}? (Y/N)\n")
+            if confirm.lower() == "y":
+                del password_manager[selected_log]
+                print(f"{selected_log} has been deleted.")
+            else:
+                print("Deletion cancelled.")
+        else:
+            print("Invalid Number")
+    except ValueError:
+        print("Please enter a valid number.")
 
 
 print("Welcome to the Password Manager!")
