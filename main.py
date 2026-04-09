@@ -1,4 +1,21 @@
 import json
+import os
+from dotenv import load_dotenv
+from cryptography.fernet import Fernet
+
+# cryptography
+load_dotenv()
+key = os.getenv("ENCRYPTION_KEY")
+cipher = Fernet(key)
+
+def encrypt_pass(password):
+    return cipher.encrypt(password.encode()).decode()
+
+def decrypt_pass(encrypted_password):
+    return cipher.decrypt(encrypted_password.encode()).decode()
+
+
+
 
 # loads file
 def load_from_file():
@@ -21,7 +38,10 @@ def create():
         website_name = input("Name of website?\n")
         user = input("What is the Username or e-mail address?\n")
         password = input("Please input the password\n")
-        password_manager[website_name] = (user, password)
+
+        encrypted_password = encrypt_pass(password)
+
+        password_manager[website_name] = (user, encrypted_password)
         save_to_file()
         
         ask = input("Would you like to add another log (press q to return to main menu)?\n")
@@ -32,8 +52,9 @@ def create():
 ##### Read
 def read():
     i = 1
-    for website_name, (user, password) in password_manager.items():
-        print(f"{i}. Password Manager Log: {website_name} -> {user}, {password}")
+    for website_name, (user, enc_password) in password_manager.items():
+        decrypt_password = decrypt_pass(enc_password)
+        print(f"{i}. Password Manager Log: {website_name} -> {user}, {decrypt_password}")
         i += 1
     
 
@@ -55,7 +76,7 @@ def update():
             new_user = input("New Username/Email: ")
             new_pass = input("New Password: ")
 
-            password_manager[selected_log] = (new_user,new_pass)
+            password_manager[selected_log] = (new_user,encrypt_pass(new_pass))
             save_to_file()
 
             print("log updated successfully!")
@@ -95,7 +116,7 @@ def delete():
 
 
 print("Welcome to the Password Manager!")
-password_manager = {}
+password_manager = load_from_file()
 
 while True:
     use = input("Press '1' to use the Password Manager\nPress '2' to exit\n")
